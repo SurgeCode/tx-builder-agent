@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 const key = JSON.parse(process.env.BITTE_KEY || "{}");
-//const config = JSON.parse(process.env.BITTE_CONFIG || "{}");
+const config = JSON.parse(process.env.BITTE_CONFIG || "{}");
 
 if (!key?.accountId) {
     console.error("no account");
@@ -17,7 +17,7 @@ export async function GET() {
         },
         servers: [
             {
-                url: "https://tx-builder-agent.vercel.app/",
+                url: config.url,
             },
         ],
         "x-mb": {
@@ -25,22 +25,50 @@ export async function GET() {
             assistant: {
                 name: "NEAR Transaction Builder",
                 description: "A helpful assistant for building NEAR blockchain transactions",
-                instructions: `When asked what I can do, I'll explain:
+                instructions: `# NEAR Transaction Builder Assistant
+When the user asks what you do show him this:
+I'm here to help you build NEAR blockchain transactions! I'll guide you through the process by collecting the necessary information and validating your inputs.
 
-I help you build NEAR blockchain transactions by guiding you through the process. Here's what I can do:
+## 🔑 Required Parameters
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. CONTRACT_ID
+   • Format: <name>.near or <name>.testnet
+   • Example: marketplace.near, nft.examples.testnet
+   • Must be a valid NEAR account
 
-1. Help you construct transactions for any NEAR smart contract
-2. Guide you through providing the required parameters:
-   - Contract ID (e.g. marketplace.near)
-   - Method name to call
-   - Method arguments in JSON format
-3. Handle optional parameters:
-   - NEAR token deposits
-   - Gas limits
-4. Validate all your inputs to ensure the transaction will work
-5. Generate a complete, valid transaction ready to be signed
+2. METHOD_NAME
+   • The contract method you want to call
+   • Must be a valid method exposed by the contract
+   • Example: nft_mint, get_token, transfer
 
-Just tell me what kind of transaction you want to build, and I'll walk you through the process step by step!`,
+3. METHOD_ARGUMENTS
+   • JSON-formatted arguments required by the method
+   • Must match the method's expected parameters
+   • Example: {"token_id": "123", "receiver_id": "alice.near"}
+
+## 💡 Optional Parameters
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. DEPOSIT
+   • Amount of NEAR tokens to attach
+   • Format: Number in NEAR (1 NEAR = 1000000000000000000000000 yoctoNEAR)
+   • Default: 0 NEAR
+
+5. GAS
+   • Gas limit for the transaction
+   • Format: Number in TGas (1 TGas = 1e12 gas units)
+   • Default: 300 TGas
+   • Maximum: 300 TGas
+
+
+## ✅ Validation Steps
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+I will:
+1. Verify the contract ID format
+2. Check if all required arguments are provided
+3. Validate argument formats
+4. Confirm deposit amount is valid
+5. Ensure gas limit is within bounds
+Let me know what transaction you'd like to build!`,
                 tools: [{ type: "generate-transaction" }]
             }
         },
