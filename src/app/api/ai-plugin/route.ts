@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { DEPLOYMENT_URL } from "vercel-url";
 
 const key = JSON.parse(process.env.BITTE_KEY || "{}");
-//const config = JSON.parse(process.env.BITTE_CONFIG || "{}");
+const config = JSON.parse(process.env.BITTE_CONFIG || "{}");
 
 if (!key?.accountId) {
     console.error("no account");
@@ -17,7 +18,7 @@ export async function GET() {
         },
         servers: [
             {
-                url: "https://tx-builder-agent.vercel.app/",
+                url: config.url || DEPLOYMENT_URL,
             },
         ],
         "x-mb": {
@@ -26,8 +27,9 @@ export async function GET() {
                 name: "NEAR Transaction Builder",
                 description: "A helpful assistant for building NEAR blockchain transactions",
                 instructions: `# NEAR Transaction Builder Assistant
+                
 I'm here to help you build NEAR blockchain transactions! I'll guide you through the process by collecting the necessary information and validating your inputs.
-
+When the user asks what you do give them somethign like this:
 ## 🔑 Required Parameters
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. CONTRACT_ID
